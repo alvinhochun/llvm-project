@@ -1,0 +1,83 @@
+# RUN: yaml2obj %s -o %t
+# RUN: lldb-test symbols %t | FileCheck %s
+
+# Checks that the symtab contains both symbols from the export table and the
+# COFF symbol table.
+
+# CHECK:          UserID DSX Type    File Address/Value {{.*}} Size            Flags           Name
+# CHECK-NEXT:     ------
+# CHECK-NEXT: 4294967295 D   Code    0x0000000180001010        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportFunc
+# CHECK-NEXT: 4294967295 D   Code    0x0000000180003000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportInt
+# CHECK-NEXT: 4294967295     Code    0x0000000180001000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} entry
+# CHECK-NEXT: 4294967295     Code    0x0000000180001010        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportFunc
+# CHECK-NEXT: 4294967295     Invalid 0x0000000180003000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportInt
+# CHECK-EMPTY:
+
+# Test file generated with:
+#   clang -O2 --target=x86_64-windows-gnu test.c -nostdlib -c -o test.obj
+#   lld-link -lldmingw -debug:symtab -dll -out:test.dll -entry:entry test.obj
+# test.c:
+#   __attribute__((dllexport)) int exportInt;
+#   void entry(void) {}
+#   __attribute__((dllexport)) void exportFunc(void) {}
+
+--- !COFF
+OptionalHeader:
+  AddressOfEntryPoint: 4096
+  ImageBase:       6442450944
+  SectionAlignment: 4096
+  FileAlignment:   512
+  MajorOperatingSystemVersion: 6
+  MinorOperatingSystemVersion: 0
+  MajorImageVersion: 0
+  MinorImageVersion: 0
+  MajorSubsystemVersion: 6
+  MinorSubsystemVersion: 0
+  Subsystem:       IMAGE_SUBSYSTEM_WINDOWS_GUI
+  DLLCharacteristics: [ IMAGE_DLL_CHARACTERISTICS_HIGH_ENTROPY_VA, IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE, IMAGE_DLL_CHARACTERISTICS_NX_COMPAT ]
+  SizeOfStackReserve: 1048576
+  SizeOfStackCommit: 4096
+  SizeOfHeapReserve: 1048576
+  SizeOfHeapCommit: 4096
+  ExportTable:
+    RelativeVirtualAddress: 8224
+    Size:            107
+header:
+  Machine:         IMAGE_FILE_MACHINE_AMD64
+  Characteristics: [ IMAGE_FILE_EXECUTABLE_IMAGE, IMAGE_FILE_LARGE_ADDRESS_AWARE, IMAGE_FILE_DLL ]
+sections:
+  - Name:            .text
+    Characteristics: [ IMAGE_SCN_CNT_CODE, IMAGE_SCN_MEM_EXECUTE, IMAGE_SCN_MEM_READ ]
+    VirtualAddress:  4096
+    VirtualSize:     17
+    SectionData:     C36666666666662E0F1F840000000000C3
+  - Name:            .rdata
+    Characteristics: [ IMAGE_SCN_CNT_INITIALIZED_DATA, IMAGE_SCN_MEM_READ ]
+    VirtualAddress:  8192
+    VirtualSize:     139
+    SectionData:     FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF000000000000000000000000000000000000000048200000010000000200000002000000622000006A2000007220000073796D626F6C732D6578706F7274732E632E746D702E646C6C0010100000003000007620000081200000000001006578706F727446756E63006578706F7274496E7400
+  - Name:            .data
+    Characteristics: [ IMAGE_SCN_CNT_INITIALIZED_DATA, IMAGE_SCN_MEM_READ, IMAGE_SCN_MEM_WRITE ]
+    VirtualAddress:  12288
+    VirtualSize:     4
+    SectionData:     ''
+symbols:
+  - Name:            entry
+    Value:           0
+    SectionNumber:   1
+    SimpleType:      IMAGE_SYM_TYPE_NULL
+    ComplexType:     IMAGE_SYM_DTYPE_FUNCTION
+    StorageClass:    IMAGE_SYM_CLASS_EXTERNAL
+  - Name:            exportFunc
+    Value:           16
+    SectionNumber:   1
+    SimpleType:      IMAGE_SYM_TYPE_NULL
+    ComplexType:     IMAGE_SYM_DTYPE_FUNCTION
+    StorageClass:    IMAGE_SYM_CLASS_EXTERNAL
+  - Name:            exportInt
+    Value:           0
+    SectionNumber:   3
+    SimpleType:      IMAGE_SYM_TYPE_NULL
+    ComplexType:     IMAGE_SYM_DTYPE_NULL
+    StorageClass:    IMAGE_SYM_CLASS_EXTERNAL
+...
