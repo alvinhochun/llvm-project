@@ -6,8 +6,8 @@
 
 # CHECK:          UserID DSX Type    File Address/Value {{.*}} Size            Flags           Name
 # CHECK-NEXT:     ------
-# CHECK-NEXT: 4294967295 D   Code    0x0000000180001010        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportFunc
-# CHECK-NEXT: 4294967295 D   Code    0x0000000180003000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportInt
+# CHECK-NEXT:          1   X Code    0x0000000180001010        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportFunc
+# CHECK-NEXT:          2   X Data    0x0000000180003000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportInt
 # CHECK-NEXT: 4294967295     Code    0x0000000180001000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} entry
 # CHECK-NEXT: 4294967295     Code    0x0000000180001010        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportFunc
 # CHECK-NEXT: 4294967295     Invalid 0x0000000180003000        0x{{[0-9a-f]+}} 0x{{[0-9a-f]+}} exportInt
