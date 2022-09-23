@@ -868,6 +868,18 @@ ObjectFilePECOFF::AppendFromExportTable(SectionList *sect_list,
     llvm::cantFail(entry.getOrdinal(ordinal));
     symbol.SetID(ordinal);
 
+    bool is_forwarder;
+    llvm::cantFail(entry.isForwarder(is_forwarder));
+    if (is_forwarder) {
+      // Forwarder exports are redirected by the loader transparently, so LLDB
+      // has no use for them.
+      LLDB_LOG(log,
+               "ObjectFilePECOFF::AppendFromExportTable - skipping forwarder "
+               "symbol '{0}'",
+               sym_name);
+      continue;
+    }
+
     uint32_t function_rva;
     if (auto err = entry.getExportRVA(function_rva)) {
       LLDB_LOG(log,
