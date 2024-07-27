@@ -323,7 +323,7 @@ void Process::UseANSIEscapeCodes(bool enable) {
     HANDLE Console = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD Mode;
     GetConsoleMode(Console, &Mode);
-    Mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    Mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT;
     SetConsoleMode(Console, Mode);
   }
 #endif
